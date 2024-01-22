@@ -1,8 +1,14 @@
 from snakeClass import Snake
 import random
 
-def Agent():
+
+#敌方蛇的移动
+def enemyAgent():
     return directToFoodAgent  # !!!CHANGE THIS!!!
+
+#我方蛇的移动
+def myAgent():
+    return directToFoodAgent
 
 def Snake_num():
     return 6 #代表蛇的数量，可修改 最大13
@@ -41,7 +47,7 @@ def randomAgent(snakes: Snake, player, x1, x2, y1, y2, foodpos):
 
 def directToFoodAgent(snake, player, x1, x2, y1, y2, foodpos):
     if not snake or not foodpos:
-        return (0, 0)  # 如果蛇列表为空或者没有食物位置，返回不移动
+        return (0, 0)  # 如果蛇为空或者没有食物位置，返回不移动
 
     head_pos = snake.pos
     food_x, food_y = foodpos
@@ -49,15 +55,33 @@ def directToFoodAgent(snake, player, x1, x2, y1, y2, foodpos):
     # 计算水平和垂直方向上的距离
     delta_x = food_x - head_pos[0]
     delta_y = food_y - head_pos[1]
-    # 选择靠近食物的方向
-    if abs(delta_x) == 0:
-        return random.choice([(1, 0),(-1,0),(0,1),(0,-1)])
-    if abs(delta_x) >= abs(delta_y):
-        direction = (delta_x // abs(delta_x), 0)  # 水平移动方向
+
+    # 检查是否靠近边界
+    near_border_x = head_pos[0] <= x1 + 20 or head_pos[0] >= x2 - 20
+    near_border_y = head_pos[1] <= y1 + 20 or head_pos[1] >= y2 - 20
+
+    # 如果靠近边界，选择向食物的方向左转或右转
+    if near_border_x and abs(delta_x) >= abs(delta_y):
+        if delta_y >= 0:
+            direction = (0, 1)  # 向上移动
+        else:
+            direction = (0, -1)  # 向下移动
+    elif near_border_y and abs(delta_y) >= abs(delta_x):
+        if delta_x >= 0:
+            direction = (1, 0)  # 向左移动
+        else:
+            direction = (-1, 0)  # 向右移动
     else:
-        direction = (0, delta_y // abs(delta_y))  # 垂直移动方向
-    print(direction)
+        # 选择靠近食物的方向
+        if abs(delta_x) >= abs(delta_y):
+            direction = (delta_x // abs(delta_x), 0)  # 水平移动方向
+        else:
+            direction = (0, delta_y // abs(delta_y))  # 垂直移动方向
+
     return direction
+
+
+
 
 
 
