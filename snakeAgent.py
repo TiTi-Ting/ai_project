@@ -50,7 +50,8 @@ def directToFoodAgent(snake, player, x1, x2, y1, y2, foodpos):
     delta_x = food_x - head_pos[0]
     delta_y = food_y - head_pos[1]
     # 选择靠近食物的方向
-    print((delta_x // abs(delta_x), 0))
+    if abs(delta_x) == 0:
+        return random.choice([(1, 0),(-1,0),(0,1),(0,-1)])
     if abs(delta_x) >= abs(delta_y):
         direction = (delta_x // abs(delta_x), 0)  # 水平移动方向
     else:
