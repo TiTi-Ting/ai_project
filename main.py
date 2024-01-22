@@ -2,13 +2,16 @@ import pygame
 import time
 import random
 from snakeClass import Snake
-from snakeAgent import Agent,Snake_num
-from stateAgent import StateAgent
+from snakeAgent import enemyAgent,Snake_num
+
 
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
+    all_snake = snakes.copy()
+    all_snake.append(player)
+
     for snake in snakes:
-        myAgent = Agent()
-        movepos = myAgent(snake, player, x1, x2, y1, y2, foodpos)
+        myAgent = enemyAgent()
+        movepos = myAgent(snake, all_snake, x1, x2, y1, y2, foodpos)
         if movepos[0] + snake.dir[0] == 0 and movepos[1] + snake.dir[1] == 0:
             movepos = snake.dir
         else:
@@ -17,7 +20,6 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
         snake.pos[1] += movepos[1] * 10
         snake.body.insert(0, list(snake.pos))
     return snakes
-
 
 
 def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_count):
@@ -43,7 +45,7 @@ def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_c
         snake_body = [snake_pos.copy(), [snake_pos[0] - 10, snake_pos[1]],
                       [snake_pos[0] - 20, snake_pos[1]]]
 
-        snake = Snake(color=snake_color, pos=snake_pos, dir=(1,0),
+        snake = Snake(color=snake_color, pos=snake_pos, dir=(1,0), 
                       body=snake_body, score=0, alive=True)
 
         snakes.append(snake)
@@ -55,7 +57,7 @@ def check_food(snakes, food_pos, player_body):
     isFoodEat = False
     for snake in snakes:
         if not snake.alive:
-            continue
+            continue        
         if snake.pos[0] == food_pos[0] and snake.pos[1] == food_pos[1]:
             # 吃到食物，增加积分
             snake.score += 1
@@ -121,7 +123,7 @@ def draw_snakes(dis, snakes):
             for segment in snake.body:
                 pygame.draw.rect(dis, snake.color, [
                                  segment[0], segment[1], 10, 10])
-
+                
 # 绘制边框函数
 def draw_border(dis, dis_width, dis_height, border_size):
     border_color = grey
@@ -242,9 +244,7 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
 
     food_pos = generate_food(dis_width, dis_height,
                              border_size, snake_body, snakes)
-    # 存储全局状态
-    state_agent = StateAgent(snakes, [food_pos], [i for i in range(len(snakes))], [],
-                             [(border_size, dis_width - border_size, border_size, dis_height - border_size)])
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -313,7 +313,6 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
             break
 
         player = Snake(green, snake_pos, direction, snake_body, score, True)
-        print('正在调用')
         snakes = move_snakes(snakes, player, border_size, dis_width -
                              border_size, border_size, dis_height - border_size, food_pos)
 
@@ -325,7 +324,7 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
         snakes = check_boundary_collision(snakes)
 
         score += addscore
-
+        
         dis.fill(black)
         draw_snakes(dis, snakes)
         draw_border(dis, dis_width, dis_height, border_size)
@@ -340,10 +339,6 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
         show_score(dis, score)
 
         pygame.display.flip()
-
-        state_agent.update_state(snakes, [food_pos], [i for i in range(len(snakes)) if snakes[i].alive],
-                                 [i for i in range(len(snakes)) if not snakes[i].alive],
-                                 [(border_size, dis_width - border_size, border_size, dis_height - border_size)])
 
         pygame.time.Clock().tick(snake_speed)
 
@@ -367,11 +362,11 @@ LEFT = 'LEFT'
 RIGHT = 'RIGHT'
 
 # 主程序
+
 dis_width = 820
 dis_height = 820
 border_size = 20
 dis = pygame.display.set_mode((dis_width, dis_height))
-
 pygame.display.set_caption('Competitive Greedy Snake')
 
 snake_speed = game_intro(dis, dis_width, dis_height)
