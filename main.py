@@ -2,7 +2,7 @@ import pygame
 import time
 import random
 from snakeClass import Snake
-from snakeAgent import Agent, Snake_num
+from snakeAgent import *
 
 
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
@@ -10,8 +10,7 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
     all_snake.append(player)
 
     for snake in snakes:
-        myAgent = Agent()
-        movepos = myAgent(snake, all_snake, x1, x2, y1, y2, foodpos)
+        movepos = snake.agent(snake, all_snake, x1, x2, y1, y2, foodpos)
         if movepos[0] + snake.dir[0] == 0 and movepos[1] + snake.dir[1] == 0:
             movepos = snake.dir
         else:
@@ -29,11 +28,10 @@ def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_c
               (128, 0, 255), (255, 0, 255), (128, 128, 0), (0, 128, 128),
               (128, 128, 128), (0, 0, 128), (128, 0, 0), (0, 128, 0)]  # 更多颜色
 
-    for _ in range(snake_count):
-        #snake_color = random.choice(colors)
-        #colors.remove(snake_color)  # 避免重复使用颜色
+    for snakeID in range(1, snake_count + 1):
+        snake_color = random.choice(colors)
+        colors.remove(snake_color)  # 避免重复使用颜色
 
-        snake_color=grey
         snake_pos = [random.randrange(border_size, ((dis_width - border_size) // 10)) * 10 - 20,
                      random.randrange(border_size, ((dis_height - border_size) // 10)) * 10 - 20]
 
@@ -45,8 +43,8 @@ def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_c
         snake_body = [snake_pos.copy(), [snake_pos[0] - 10, snake_pos[1]],
                       [snake_pos[0] - 20, snake_pos[1]]]
 
-        snake = Snake(color=snake_color, pos=snake_pos, dir=(1,0), 
-                      body=snake_body, score=0, alive=True)
+        snake = Snake(color=snake_color, id=snakeID, pos=snake_pos, dir=(1,0), 
+                      body=snake_body, score=0, alive=True, agent=Agent(snakeID))
 
         snakes.append(snake)
 
@@ -312,7 +310,7 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
         if (game_over):
             break
 
-        player = Snake(green, snake_pos, direction, snake_body, score, True)
+        player = Snake(green,0 , snake_pos, direction, snake_body, score, True, None)
         snakes = move_snakes(snakes, player, border_size, dis_width -
                              border_size, border_size, dis_height - border_size, food_pos)
 
@@ -363,8 +361,8 @@ RIGHT = 'RIGHT'
 
 # 主程序
 
-dis_width = 820
-dis_height = 820
+dis_width = set_width()
+dis_height = set_height()
 border_size = 20
 dis = pygame.display.set_mode((dis_width, dis_height))
 pygame.display.set_caption('Competitive Greedy Snake')

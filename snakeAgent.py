@@ -1,11 +1,24 @@
 from snakeClass import Snake
 import random
 
-def Agent():
-    return directionalAgent  # !!!CHANGE THIS!!!
+def Agent(snakeID):
+    if 1 <= snakeID <= 2:
+        return randomAgent
+    elif snakeID == 3:
+        return directionalAgent
+    else:
+        return keepRightAgent
+    #为不同编号的蛇分配不同的agent
+    
 
 def Snake_num():
-    return 9 #代表蛇的数量，可修改 最大13
+    return 3 #代表蛇的数量，可修改 最大13
+
+def set_width():
+    return 820 #设置地图宽度 必须是10的倍数（一步10格）
+
+def set_height():
+    return 820 #设置地图高度
 '''
 
 参数解释
@@ -24,6 +37,10 @@ class Snake:
         self.score = score 蛇的得分
         self.alive = alive 蛇是否还活着 True/False 所以访问蛇数组时要先判断是否alive
 
+        self.id = id 蛇的编号, 玩家的编号默认为0
+        self.agent = agent 蛇的agent, 可以达到不同的蛇有不同的agent的效果
+        
+
     x1 x2 y1 y2为地图边界 横坐标[x1,x2] 纵坐标[y1,y2]
 
     foodpos食物坐标
@@ -39,20 +56,6 @@ def randomAgent(cur, snakes: Snake, x1, x2, y1, y2, foodpos):
     
     return random.choice([(1, 0),(-1,0),(0,1),(0,-1)])
 
-
-def directToFoodAgent(cur, snakes, x1, x2, y1, y2, foodpos):
-    '''
-    Need to complete
-    '''
-    pass
-
-
-'''
-def someotherAgent(snakes, player, x1, x2, y1, y2, foodpos):
-...
-
-
-'''
 # input:当前移动的蛇，玩家蛇，边界，食物位置，全部蛇的数组
 def score_move(snake, x1, x2, y1, y2, foodpos, snakes, move):
     def calculate_manhattan_distance(pos1, pos2):
