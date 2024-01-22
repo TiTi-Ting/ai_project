@@ -3,7 +3,7 @@ import time
 import random
 from snakeClass import Snake
 from snakeAgent import Agent,Snake_num
-
+from stateAgent import StateAgent
 
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
     for snake in snakes:
@@ -241,7 +241,9 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
 
     food_pos = generate_food(dis_width, dis_height,
                              border_size, snake_body, snakes)
-
+    # 存储全局状态
+    state_agent = StateAgent(snakes, [food_pos], [i for i in range(len(snakes))], [],
+                             [(border_size, dis_width - border_size, border_size, dis_height - border_size)])
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -337,6 +339,9 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
 
         pygame.display.flip()
 
+        state_agent.update_state(snakes, [food_pos], [i for i in range(len(snakes)) if snakes[i].alive],
+                                 [i for i in range(len(snakes)) if not snakes[i].alive],
+                                 [(border_size, dis_width - border_size, border_size, dis_height - border_size)])
         pygame.time.Clock().tick(snake_speed)
 
 
@@ -363,6 +368,7 @@ dis_width = 820
 dis_height = 820
 border_size = 20
 dis = pygame.display.set_mode((dis_width, dis_height))
+
 pygame.display.set_caption('Competitive Greedy Snake')
 
 snake_speed = game_intro(dis, dis_width, dis_height)
