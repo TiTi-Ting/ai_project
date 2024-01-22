@@ -2,7 +2,7 @@ from snakeClass import Snake
 import random
 
 def Agent():
-    return randomAgent  # !!!CHANGE THIS!!!
+    return directToFoodAgent  # !!!CHANGE THIS!!!
 
 def Snake_num():
     return 6 #代表蛇的数量，可修改 最大13
@@ -36,16 +36,28 @@ def keepRightAgent(snakes: Snake, player, x1, x2, y1, y2, foodpos):
     return (1, 0)  # 向右走
 
 def randomAgent(snakes: Snake, player, x1, x2, y1, y2, foodpos):
-    #print(snakes)
-    #print(player)
     return random.choice([(1, 0),(-1,0),(0,1),(0,-1)])
 
 
-def directToFoodAgent(snakes, player, x1, x2, y1, y2, foodpos):
-    '''
-    Need to complete
-    '''
-    pass
+def directToFoodAgent(snake, player, x1, x2, y1, y2, foodpos):
+    if not snake or not foodpos:
+        return (0, 0)  # 如果蛇列表为空或者没有食物位置，返回不移动
+
+    head_pos = snake.pos
+    food_x, food_y = foodpos
+
+    # 计算水平和垂直方向上的距离
+    delta_x = food_x - head_pos[0]
+    delta_y = food_y - head_pos[1]
+    # 选择靠近食物的方向
+    print((delta_x // abs(delta_x), 0))
+    if abs(delta_x) >= abs(delta_y):
+        direction = (delta_x // abs(delta_x), 0)  # 水平移动方向
+    else:
+        direction = (0, delta_y // abs(delta_y))  # 垂直移动方向
+    print(direction)
+    return direction
+
 
 
 '''

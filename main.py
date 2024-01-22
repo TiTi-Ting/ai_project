@@ -8,7 +8,7 @@ from stateAgent import StateAgent
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
     for snake in snakes:
         myAgent = Agent()
-        movepos = myAgent(snakes, player, x1, x2, y1, y2, foodpos)
+        movepos = myAgent(snake, player, x1, x2, y1, y2, foodpos)
         if movepos[0] + snake.dir[0] == 0 and movepos[1] + snake.dir[1] == 0:
             movepos = snake.dir
         else:
@@ -17,6 +17,7 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
         snake.pos[1] += movepos[1] * 10
         snake.body.insert(0, list(snake.pos))
     return snakes
+
 
 
 def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_count):
@@ -312,6 +313,7 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
             break
 
         player = Snake(green, snake_pos, direction, snake_body, score, True)
+        print('正在调用')
         snakes = move_snakes(snakes, player, border_size, dis_width -
                              border_size, border_size, dis_height - border_size, food_pos)
 
@@ -342,6 +344,7 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
         state_agent.update_state(snakes, [food_pos], [i for i in range(len(snakes)) if snakes[i].alive],
                                  [i for i in range(len(snakes)) if not snakes[i].alive],
                                  [(border_size, dis_width - border_size, border_size, dis_height - border_size)])
+
         pygame.time.Clock().tick(snake_speed)
 
 
