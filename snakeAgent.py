@@ -1,22 +1,17 @@
 from snakeClass import Snake
 import random
 
-
-#敌方蛇的移动
-def enemyAgent():
-    return directToFoodAgent  # !!!CHANGE THIS!!!
-
-#我方蛇的移动
-def myAgent():
-    return directToFoodAgent
+def Agent():
+    return directionalAgent  # !!!CHANGE THIS!!!
 
 def Snake_num():
-    return 6 #代表蛇的数量，可修改 最大13
+    return 9 #代表蛇的数量，可修改 最大13
 '''
 
-参数解释：
-
-    snakes和player均为Snake类
+参数解释
+    cur 为当前需要移动的蛇 Snake类
+    snakes 为所有蛇的列表(包括玩家) Snake类的列表
+    cur, snakes均为Snake类
     以下是Snake的定义
 class Snake:
     def __init__(self, color, pos, body, score, alive):
@@ -36,53 +31,20 @@ class Snake:
     当写好Agent后,修改Agent()函数（在最上面！）的返回值为其他函数名以测试
 
 '''
-# 敌方agent实现
-def keepRightAgent(snakes: Snake, player, x1, x2, y1, y2, foodpos):
+def keepRightAgent(cur, snakes: Snake, x1, x2, y1, y2, foodpos):
 
     return (1, 0)  # 向右走
 
-def randomAgent(snakes: Snake, player, x1, x2, y1, y2, foodpos):
+def randomAgent(cur, snakes: Snake, x1, x2, y1, y2, foodpos):
+    
     return random.choice([(1, 0),(-1,0),(0,1),(0,-1)])
 
 
-def directToFoodAgent(snake, player, x1, x2, y1, y2, foodpos):
-    if not snake or not foodpos:
-        return (0, 0)  # 如果蛇为空或者没有食物位置，返回不移动
-
-    head_pos = snake.pos
-    food_x, food_y = foodpos
-
-    # 计算水平和垂直方向上的距离
-    delta_x = food_x - head_pos[0]
-    delta_y = food_y - head_pos[1]
-
-    # 检查是否靠近边界
-    near_border_x = head_pos[0] <= x1 + 20 or head_pos[0] >= x2 - 20
-    near_border_y = head_pos[1] <= y1 + 20 or head_pos[1] >= y2 - 20
-
-    # 如果靠近边界，选择向食物的方向左转或右转
-    if near_border_x and abs(delta_x) >= abs(delta_y):
-        if delta_y >= 0:
-            direction = (0, 1)  # 向上移动
-        else:
-            direction = (0, -1)  # 向下移动
-    elif near_border_y and abs(delta_y) >= abs(delta_x):
-        if delta_x >= 0:
-            direction = (1, 0)  # 向左移动
-        else:
-            direction = (-1, 0)  # 向右移动
-    else:
-        # 选择靠近食物的方向
-        if abs(delta_x) >= abs(delta_y):
-            direction = (delta_x // abs(delta_x), 0)  # 水平移动方向
-        else:
-            direction = (0, delta_y // abs(delta_y))  # 垂直移动方向
-
-    return direction
-
-
-
-
+def directToFoodAgent(cur, snakes, x1, x2, y1, y2, foodpos):
+    '''
+    Need to complete
+    '''
+    pass
 
 
 '''
@@ -91,3 +53,53 @@ def someotherAgent(snakes, player, x1, x2, y1, y2, foodpos):
 
 
 '''
+# input:当前移动的蛇，玩家蛇，边界，食物位置，全部蛇的数组
+def score_move(snake, x1, x2, y1, y2, foodpos, snakes, move):
+    def calculate_manhattan_distance(pos1, pos2):
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+    score = 0
+    next_pos = (snake.pos[0] + move[0], snake.pos[1] + move[1])
+    # 1. 检查是否撞墙
+    if next_pos[0] <= x1 or next_pos[0] >= x2  or next_pos[1] <= y1 or next_pos[1] >= y2:
+        score += -1e5
+
+    # 2. 计算离食物曼哈顿距离的得分
+    distance_to_food = calculate_manhattan_distance(next_pos, foodpos)
+    score += -distance_to_food + 1000
+
+    # 3. 检查是否撞上其他蛇的身体
+    for other_snake in snakes:
+        if other_snake.alive and other_snake != snake:
+            if other_snake != snake and next_pos in other_snake.body:
+                score += -1e5  # 撞上其他蛇的身体
+
+    # 4. 排除与当前方向相反的移动方向
+    if move[0] == -10 * snake.dir[0] and move[1] == -10 * snake.dir[1]:
+        score += -1e5  # 与当前方向相反，分数为负无穷
+
+    # # 5.希望能干扰其他蛇的蛇头去向
+    # min_distance = float('inf')
+    # for other_snake in snakes:
+    #     if other_snake.alive and other_snake != snake:
+    #         distance = calculate_manhattan_distance(next_pos, other_snake.pos)
+    #         min_distance = min(min_distance, distance)
+    # score += -min_distance + 10000
+    # 计算综合得分
+    #print('Snake',snake,'at',snake.pos,'go to',next_pos,'get',score)
+    return score
+
+
+def directionalAgent(current_snake, snakes, x1, x2, y1, y2, foodpos):
+    moves = [(10, 0), (-10, 0), (0, 10), (0, -10)]  # 可能的移动方向
+    actions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    scores = []
+
+    for move in moves:
+        # 对每个可能的移动方向计算得分
+        score = score_move(current_snake, x1, x2, y1, y2, foodpos, snakes, move)
+        scores.append(score)
+
+    # 选择分数最高的移动方向
+    best_move = actions[scores.index(max(scores))]
+    #print('select',max(scores),'action:',best_move)
+    return best_move

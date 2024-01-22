@@ -2,7 +2,7 @@ import pygame
 import time
 import random
 from snakeClass import Snake
-from snakeAgent import enemyAgent,Snake_num
+from snakeAgent import Agent, Snake_num
 
 
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
@@ -10,7 +10,7 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
     all_snake.append(player)
 
     for snake in snakes:
-        myAgent = enemyAgent()
+        myAgent = Agent()
         movepos = myAgent(snake, all_snake, x1, x2, y1, y2, foodpos)
         if movepos[0] + snake.dir[0] == 0 and movepos[1] + snake.dir[1] == 0:
             movepos = snake.dir
