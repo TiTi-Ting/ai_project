@@ -5,9 +5,8 @@ from snakeClass import Snake
 from snakeAgent import *
 
 
-def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
+def move_snakes(snakes, x1, x2, y1, y2, foodpos):
     all_snake = snakes.copy()
-    all_snake.append(player)
 
     for snake in snakes:
         movepos = snake.agent(snake, all_snake, x1, x2, y1, y2, foodpos)
@@ -21,7 +20,7 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
     return snakes
 
 
-def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_count):
+def generate_snakes(dis, dis_width, dis_height, border_size, snake_count):
     snakes = []
 
     colors = [(255, 0, 0), (0, 0, 255), (255, 255, 0), (0, 255, 255), (255, 128, 0),
@@ -51,7 +50,7 @@ def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_c
     return snakes
 
 # 检测蛇是否吃到食物
-def check_food(snakes, food_pos, player_body):
+def check_food(snakes, food_pos):
     isFoodEat = False
     for snake in snakes:
         if not snake.alive:
@@ -65,21 +64,14 @@ def check_food(snakes, food_pos, player_body):
 
     if isFoodEat:
         food_pos = generate_food(
-            dis_width, dis_height, border_size, player_body, snakes)
+            dis_width, dis_height, border_size, snakes)
     return (snakes,food_pos)
 
 # 检测蛇是否碰到其他蛇
-def check_collision(snakes, player_body):
+def check_collision(snakes):
     score = 0
     die_list = []
 
-    # 撞到玩家
-    for snake in snakes:
-        if not snake.alive:
-            continue
-        if (snake.pos in player_body):
-            score += snake.score
-            die_list.append(snake)
     # 撞到其他蛇
     for i in range(len(snakes)):
         if not snakes[i].alive:
@@ -133,12 +125,12 @@ def draw_border(dis, dis_width, dis_height, border_size):
                      dis_width - border_size, 0, border_size, dis_height])  # 右边框
 
 # 生成食物
-def generate_food(dis_width, dis_height, border_size, player_body, snakes):
+def generate_food(dis_width, dis_height, border_size, snakes):
     food_pos = [random.randrange(border_size, (dis_width - border_size) // 10) * 10,
                 random.randrange(border_size, (dis_height - border_size) // 10) * 10]
 
     # 确保食物的位置不与玩家蛇和其他蛇的位置重合
-    while any(food_pos in player_body or (food_pos in snake.body and snake.alive for snake in snakes)):
+    while any(food_pos in snake.body and snake.alive for snake in snakes):
         food_pos = [random.randrange(border_size, (dis_width - border_size) // 10) * 10,
                     random.randrange(border_size, (dis_height - border_size) // 10) * 10]
 
@@ -160,7 +152,9 @@ def show_game_over(dis, dis_width, dis_height):
 
 # 开始游戏
 def game_start(dis, dis_width, dis_height, border_size, snake_speed):
-    game_loop(dis, dis_width, dis_height, border_size, snake_speed)
+    while True:
+        game_loop(dis, dis_width, dis_height, border_size, snake_speed)
+    '''
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -170,6 +164,7 @@ def game_start(dis, dis_width, dis_height, border_size, snake_speed):
                 if (event.key == pygame.K_r):
                     game_loop(dis, dis_width, dis_height,
                               border_size, snake_speed)
+    '''
 
 
 # 显示得分
@@ -224,12 +219,8 @@ def game_intro(dis, dis_width, dis_height):
 
 # 定义游戏主循环函数
 def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
+    
     snake_block = 10
-
-    snake_pos = [dis_width / 2, dis_height / 2]
-    snake_body = [[snake_pos[0], snake_pos[1]],
-                  [snake_pos[0] - 10, snake_pos[1]],
-                  [snake_pos[0] - 20, snake_pos[1]]]
 
     direction = RIGHT
     change_to = direction
@@ -238,12 +229,13 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
     game_over = False
 
     snakes = generate_snakes(dis, dis_width, dis_height,
-                             border_size, snake_body, Snake_num())
+                             border_size, Snake_num())
 
     food_pos = generate_food(dis_width, dis_height,
-                             border_size, snake_body, snakes)
-
+                             border_size, snakes)
+   
     while True:
+        '''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -309,16 +301,24 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
 
         if (game_over):
             break
+        '''
+        
+        alive_snake=0
+        for snake in snakes:
+            if snake.alive:
+                alive_snake+=1
+        if(alive_snake==1):
+            game_over = True
+            break
 
-        player = Snake(green,0 , snake_pos, direction, snake_body, score, True, None)
-        snakes = move_snakes(snakes, player, border_size, dis_width -
+        snakes = move_snakes(snakes, border_size, dis_width -
                              border_size, border_size, dis_height - border_size, food_pos)
 
         # 检测食物
-        snakes, food_pos = check_food(snakes, food_pos, snake_body)
+        snakes, food_pos = check_food(snakes, food_pos)
 
         # 检测碰撞
-        snakes, addscore = check_collision(snakes, snake_body)
+        snakes, addscore = check_collision(snakes)
         snakes = check_boundary_collision(snakes)
 
         score += addscore
@@ -327,14 +327,10 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
         draw_snakes(dis, snakes)
         draw_border(dis, dis_width, dis_height, border_size)
 
-        for segment in snake_body:
-            pygame.draw.rect(dis, green, pygame.Rect(
-                segment[0], segment[1], snake_block, snake_block))
-
         pygame.draw.rect(dis, yellow, pygame.Rect(
             food_pos[0], food_pos[1], snake_block, snake_block))
 
-        show_score(dis, score)
+        #show_score(dis, score)
 
         pygame.display.flip()
 
@@ -367,7 +363,8 @@ border_size = 20
 dis = pygame.display.set_mode((dis_width, dis_height))
 pygame.display.set_caption('Competitive Greedy Snake')
 
-snake_speed = game_intro(dis, dis_width, dis_height)
+#snake_speed = game_intro(dis, dis_width, dis_height)
+snake_speed = set_speed()
 game_start(dis, dis_width, dis_height, border_size, snake_speed)
 
 pygame.quit()

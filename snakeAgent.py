@@ -3,7 +3,7 @@ import random
 
 def Agent(snakeID):
     if 1 <= snakeID <= 2:
-        return randomAgent
+        return keepRightAgent
     elif snakeID == 3:
         return directionalAgent
     else:
@@ -12,13 +12,16 @@ def Agent(snakeID):
     
 
 def Snake_num():
-    return 3 #代表蛇的数量，可修改 最大13
+    return 4 #代表蛇的数量，可修改 最大13
 
 def set_width():
     return 820 #设置地图宽度 必须是10的倍数（一步10格）
 
 def set_height():
     return 820 #设置地图高度
+
+def set_speed():
+    return 20 #调整游戏速度，如果训练的话可以把这个值调的很大
 '''
 
 参数解释
