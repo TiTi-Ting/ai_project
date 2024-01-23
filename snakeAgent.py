@@ -1,11 +1,14 @@
 from snakeClass import Snake
 import random
 
-def Agent():
+def enemyAgent():
+    return directionalAgent  # !!!CHANGE THIS!!!
+
+def playerAgent():
     return directionalAgent  # !!!CHANGE THIS!!!
 
 def Snake_num():
-    return 9 #代表蛇的数量，可修改 最大13
+    return 3 #代表蛇的数量，可修改 最大13
 '''
 
 参数解释
@@ -103,3 +106,6 @@ def directionalAgent(current_snake, snakes, x1, x2, y1, y2, foodpos):
     best_move = actions[scores.index(max(scores))]
     #print('select',max(scores),'action:',best_move)
     return best_move
+
+
+

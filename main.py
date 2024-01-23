@@ -2,16 +2,22 @@ import pygame
 import time
 import random
 from snakeClass import Snake
-from snakeAgent import Agent, Snake_num
+from snakeAgent import enemyAgent, Snake_num, playerAgent
 
 
 def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
-    all_snake = snakes.copy()
-    all_snake.append(player)
+    all_snakes = snakes.copy()
+    all_snakes.append(player)
 
-    for snake in snakes:
-        myAgent = Agent()
-        movepos = myAgent(snake, all_snake, x1, x2, y1, y2, foodpos)
+    for snake in all_snakes:
+        # Determine the appropriate agent to use
+        if snake == player:
+            myAgent = playerAgent()  # AI agent for the player's snake
+        else:
+            myAgent = enemyAgent()  # AI agent for enemy snakes
+
+        movepos = myAgent(snake, all_snakes, x1, x2, y1, y2, foodpos)
+
         if movepos[0] + snake.dir[0] == 0 and movepos[1] + snake.dir[1] == 0:
             movepos = snake.dir
         else:
@@ -20,6 +26,7 @@ def move_snakes(snakes, player, x1, x2, y1, y2, foodpos):
         snake.pos[1] += movepos[1] * 10
         snake.body.insert(0, list(snake.pos))
     return snakes
+    # return [snake for snake in all_snakes if snake != player]
 
 
 def generate_snakes(dis, dis_width, dis_height, border_size, snake_body, snake_count):
@@ -233,7 +240,8 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
                   [snake_pos[0] - 10, snake_pos[1]],
                   [snake_pos[0] - 20, snake_pos[1]]]
 
-    direction = RIGHT
+    # direction = RIGHT
+    direction = (1, 0)
     change_to = direction
 
     score = 0
@@ -246,40 +254,6 @@ def game_loop(dis, dis_width, dis_height, border_size, snake_speed):
                              border_size, snake_body, snakes)
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    change_to = UP
-                elif event.key == pygame.K_DOWN:
-                    change_to = DOWN
-                elif event.key == pygame.K_LEFT:
-                    change_to = LEFT
-                elif event.key == pygame.K_RIGHT:
-                    change_to = RIGHT
-
-        if change_to == UP and not direction == DOWN:
-            direction = UP
-        if change_to == DOWN and not direction == UP:
-            direction = DOWN
-        if change_to == LEFT and not direction == RIGHT:
-            direction = LEFT
-        if change_to == RIGHT and not direction == LEFT:
-            direction = RIGHT
-
-        if direction == UP:
-            snake_pos[1] -= snake_block
-        if direction == DOWN:
-            snake_pos[1] += snake_block
-        if direction == LEFT:
-            snake_pos[0] -= snake_block
-        if direction == RIGHT:
-            snake_pos[0] += snake_block
-
-        snake_body.insert(0, list(snake_pos))
-
         if snake_pos[0] == food_pos[0] and snake_pos[1] == food_pos[1]:
             score += 1
             food_pos = generate_food(
